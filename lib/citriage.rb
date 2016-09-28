@@ -4,6 +4,50 @@ require 'rainbow/ext/string'
 require "citriage/version"
 
 module Citriage
+  class CitriageTwo
+
+    attr_accessor :modules_hash, :base_url
+
+    def initialize
+      @base_url = "https://jenkins-modules.puppetlabs.com/view"
+      @modules_hash = {
+        :windows => {},
+        :linux => {},
+        :cross_platform => {}
+      }
+    end
+
+    def append_api url
+      url + "/api/json"
+    end
+
+    def generate_platform_url platform
+      case platform
+      when "linux"
+        _platform = "/2.%20linux%20only"
+      when "windows"
+        _platform = "/3.%20windows%20only"
+      when "cross-platform"
+        _platform = "/4.%20cross%20platform"
+      end
+
+      append_api "#{@base_url}#{_platform}"
+    end
+
+    def curl_url url
+      response = Curl.get(url) do |curl|
+        curl.on_failure { |failure| puts "cURL failed for #{failure.url}" }
+      end
+
+      response.body_str
+    end
+
+    def parse_json curl_response
+      JSON.parse(curl_response)
+    end
+
+  end
+
   class Citriage
 
     attr_accessor :base_url
@@ -71,7 +115,7 @@ module Citriage
         json['jobs'].each do |job|
           if job['color'] == 'red'
             mod_status = false
-            failed_job = job['name']
+            failed_job = job['url']
             break
           else
             mod_status = true
