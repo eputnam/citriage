@@ -4,4 +4,4 @@ $LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
 
 require 'citriage'
 
-Citriage.new.run
+Citriage::Citriage.new.run
