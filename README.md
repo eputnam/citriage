@@ -21,9 +21,22 @@ Simply run:
 ci-triage
 ```
 
+To specify specific platforms, list them as arguments separated by spaces:
+```shell
+ci-triage linux windows netdev
+```
+Available Plaforms:
+windows
+linux
+cross-platform
+netdev
+cloud
+
+Default behavior is to list all platforms.
+
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/citriage.
+Bug reports and pull requests are welcome on GitHub at https://github.com/[eputnam]/citriage.
 
 
 ## License
