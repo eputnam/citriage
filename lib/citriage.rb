@@ -13,7 +13,9 @@ module Citriage
       @modules_hash = {
         :windows => {},
         :linux => {},
-        :cross_platform => {}
+        :cross_platform => {},
+        :cloud => {},
+        :netdev => {}
       }
     end
 
@@ -29,6 +31,10 @@ module Citriage
         _platform = "/3.%20windows%20only"
       when "cross-platform"
         _platform = "/4.%20cross%20platform"
+      when "cloud"
+        _platform = "/5.%20cloud"
+      when "netdev"
+        _platform = "/6.%20netdev"
       end
 
       append_api "#{@base_url}#{_platform}"
@@ -83,6 +89,10 @@ module Citriage
         _platform = "/3.%20windows%20only"
       when "cross-platform"
         _platform = "/4.%20cross%20platform"
+      when "cloud"
+        _platform = "/5.%20cloud"
+      when "netdev"
+        _platform = "/6.%20netdev"
       end
       _platform
     end
@@ -135,7 +145,7 @@ module Citriage
     end
 
     def run
-      platforms = ["windows", "linux", "cross-platform"]
+      platforms = ["windows", "linux", "cross-platform", "cloud", "netdev"]
 
       platforms.each do |platform|
         puts "#{platform.upcase}".color(:cyan)
