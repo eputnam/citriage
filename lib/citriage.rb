@@ -95,7 +95,12 @@ module Citriage
     end
 
     def run
-      platforms = ["windows", "linux", "cross-platform", "cloud", "netdev"]
+
+      if ARGV.length > 0
+        platforms = ARGV
+      else
+        platforms = ["windows", "linux", "cross-platform", "cloud", "netdev"]
+      end
 
       platforms.each do |platform|
         puts "#{platform.upcase}".color(:cyan)
