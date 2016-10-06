@@ -16,21 +16,21 @@ gem install {gem_file}
 
 ## Usage
 
-Simply run:
+To list modules for all platforms, simply run:
 ```shell
 ci-triage
 ```
 
-To specify specific platforms, list them as arguments separated by spaces:
+To specify specific platforms, use the -p option and list platforms as arguments separated by commas:
 ```shell
-ci-triage linux windows netdev
+ci-triage -p linux,windows,netdev
 ```
 Available Plaforms:
-windows
-linux
-cross-platform
-netdev
-cloud
+- windows
+- linux
+- cross-platform
+- netdev
+- cloud
 
 Default behavior is to list all platforms.
 
