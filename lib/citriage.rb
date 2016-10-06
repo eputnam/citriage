@@ -1,10 +1,12 @@
 require 'curb'
 require 'json'
 require 'rainbow/ext/string'
+require 'commander'
 require "citriage/version"
 
 module Citriage
   class Citriage
+    include Commander::Methods
 
     attr_accessor :base_url
 
@@ -95,24 +97,38 @@ module Citriage
     end
 
     def run
+      program :name, 'ci-triage'
+      program :version, Citriage::VERSION
+      program :description, 'CLI tool for Modules CI Triage'
 
-      if ARGV.length > 0
-        platforms = ARGV
-      else
-        platforms = ["windows", "linux", "cross-platform", "cloud", "netdev"]
-      end
+      command :all do |c|
+        c.syntax = 'ci-triage all'
+        c.description = 'Lists all modules at the top level.'
+        c.option '--platform STRING', String, 'Platform(s) to display.'
+        c.action do |args, opts|
+          if opts.platform.size > 0
+            platforms = opts.platform.split(',')
+          else
+            platforms = ["windows", "linux", "cross-platform", "cloud", "netdev"]
+          end
 
-      platforms.each do |platform|
-        puts "#{platform.upcase}".color(:cyan)
-        modules = assemble_module_list platform
+          platforms.each do |platform|
+            puts "#{platform.upcase}".color(:cyan)
+            modules = assemble_module_list platform
 
-        modules.each do |mod|
-          unless mod == "ad hoc"
-            json = get_json(generate_url platform,mod,"master")
-            list_jobs json
+            modules.each do |mod|
+              unless mod == "ad hoc"
+                json = get_json(generate_url platform,mod,"master")
+                list_jobs json
+              end
+            end
           end
         end
       end
+
+      default_command :all
+
+      run!
     end
   end
 end
