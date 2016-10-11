@@ -98,7 +98,7 @@ module Citriage
 
     def run
       program :name, 'ci-triage'
-      program :version, Citriage::VERSION
+      program :version, VERSION
       program :description, 'CLI tool for Modules CI Triage'
 
       command :all do |c|
@@ -106,7 +106,7 @@ module Citriage
         c.description = 'Lists all modules at the top level.'
         c.option '--platform STRING', String, 'Platform(s) to display.'
         c.action do |args, opts|
-          if opts.platform.size > 0
+          if !opts.platform.nil?
             platforms = opts.platform.split(',')
           else
             platforms = ["windows", "linux", "cross-platform", "cloud", "netdev"]
