@@ -103,6 +103,34 @@ module Citriage
       end
     end
 
+    def list_jobs_verbose json_hash
+      begin
+        print "[#{json_hash[:master]['name'].split(" ")[0]}]\n"
+        json_hash.each do |name, branch|
+          mod_status = true
+          failed_jobs = []
+
+          branch['jobs'].each do |job|
+            if job['color'] == 'red'
+              mod_status = false
+              failed_jobs << job['url']
+            end
+          end
+
+          if mod_status
+            print "\u25CF #{name.to_s}\n".color(:green)
+          else
+            print "\u25CF #{name.to_s}\n".color(:red)
+            failed_jobs.each do |job|
+              print "    FAILURE: #{job}\n".color(:red)
+            end
+          end
+        end
+      rescue NoMethodError
+        puts "Got an empty list for a module."
+      end
+    end
+
     def run
       program :name, 'ci-triage'
       program :version, VERSION
@@ -111,6 +139,7 @@ module Citriage
       command :all do |c|
         c.syntax = 'ci-triage all'
         c.description = 'Lists all modules at the top level.'
+        c.option '--verbose', 'Enables verbose output'
         c.option '--platform STRING', String, 'Platform(s) to display.'
         c.action do |args, opts|
           if !opts.platform.nil?
@@ -148,7 +177,11 @@ module Citriage
                   job_list[:release] = get_json release_url, release_response
                 end
 
-                list_jobs job_list
+                if opts.verbose
+                  list_jobs_verbose job_list
+                else
+                  list_jobs job_list
+                end
 
               end
             end

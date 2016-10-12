@@ -21,6 +21,11 @@ To list modules for all platforms, simply run:
 ci-triage
 ```
 
+To get verbose output that lists all branches and failing jobs individually, run with the `--verbose` option:
+```shell
+ci-triage --verbose
+```
+
 To specify specific platforms, use the -p option and list platforms as arguments separated by commas:
 ```shell
 ci-triage -p linux,windows,netdev
