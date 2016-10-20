@@ -85,8 +85,6 @@ module Citriage
               mod_status = false
               failed_job = job['url']
               break
-            else
-              mod_status = true
             end
           end
         end
