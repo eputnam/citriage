@@ -2,7 +2,8 @@ require 'curb'
 require 'json'
 require 'rainbow/ext/string'
 require 'commander'
-require "citriage/version"
+require 'citriage/version'
+require 'citriage/constants'
 
 class Citriage
   include Commander::Methods
@@ -10,7 +11,7 @@ class Citriage
   attr_accessor :base_url
 
   def initialize
-    @base_url = "https://jenkins-modules.puppetlabs.com/view"
+    @base_url = Constants::BASE_URL
   end
 
   def api_url url
@@ -142,7 +143,7 @@ class Citriage
         if !opts.platform.nil?
           platforms = opts.platform.split(',')
         else
-          platforms = ["windows", "linux", "cross-platform", "cloud", "netdev"]
+          platforms = Constants::PLATFORMS
         end
 
         platforms.each do |platform|
