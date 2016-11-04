@@ -5,7 +5,7 @@ require 'citriage/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "citriage"
-  spec.version       = Citriage::VERSION
+  spec.version       = VERSION
   spec.authors       = ["Eric Putnam"]
   spec.email         = ["putnam.eric@gmail.com"]
 
