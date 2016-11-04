@@ -1,17 +1,14 @@
 require "spec_helper"
-require 'citriage'
+require 'citriage/constants'
 
-describe Citriage::Citriage do
+describe Citriage do
+
   before(:each) do
-    @triage = Citriage::Citriage.new
+    @citriage = Citriage.new
   end
 
-  it "has a version number" do
-    expect(Citriage::VERSION).not_to be nil
-  end
-
-  it "uses the correct URL" do
-    expect(@triage.base_url).to start_with("https://jenkins-modules.puppetlabs.com/");
+  it "not be nil" do
+    expect(@citriage).to_not be(nil)
   end
 
 end
