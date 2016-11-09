@@ -52,6 +52,12 @@ class Citriage
     _platform
   end
 
+  def config_json job_url
+    json = get_json(job_url, get_response(job_url))
+
+    json["activeConfigurations"]
+  end
+
   def assemble_module_list platform
     _platform = platform_dir platform
     url = "#{@base_url}#{_platform}"
@@ -70,10 +76,25 @@ class Citriage
   def generate_url platform, module_name, branch_name
     _platform = "#{platform_dir platform}/view"
     _module_name = "/#{module_name}/view"
-    branch_name = "/#{module_name}%20-%20#{branch_name}"
+    _branch_name = "/#{module_name}%20-%20#{branch_name}"
 
-    @base_url + _platform + _module_name + branch_name
+    @base_url + _platform + _module_name + _branch_name
   end
+
+  def print_unit_test_configs job_url, platform
+    print '    |-'.color(:red)
+    puts " puppet #{platform["name"].slice(/\d.\d.\d/)}, #{platform["name"].match(/ruby-\d.\d.\d/)}".color(:darkcyan)
+  end
+
+  def print_accept_job_configs job_url, platform
+    print '    |-'.color(:red)
+    puts " #{platform["name"].slice(/[a-z].*-\w*-\d\d[a-z]*/) || platform["name"].slice(/[a-z]*\d-\d\d[a-z]*/) || platform["name"].slice(/default/) unless platform["color"] == "blue"}".color(:darkcyan)
+  end
+
+  def passed? job
+    job["color"] == "blue"
+  end
+
 
   def list_jobs json
     mod_status = true
@@ -129,6 +150,46 @@ class Citriage
     end
   end
 
+  def list_jobs_verbose_with_configurations json_hash
+    begin
+      print "[#{json_hash[:master]['name'].split(" ")[0]}]\n"
+      json_hash.each do |name, branch|
+        mod_status = true
+        failed_jobs = []
+
+        branch['jobs'].each do |job|
+          if job['color'] == 'red'
+            mod_status = false
+            failed_jobs << job['url']
+          end
+        end
+
+        if mod_status
+          print "\u25CF #{name.to_s}\n".color(:green)
+        else
+          print "\u25CF #{name.to_s}\n".color(:red)
+          failed_jobs.each do |job|
+            print "    FAILURE: #{job}\n".color(:red)
+            unless job.match(/init-merge/) || job.match(/static-module/)
+              config_json(job).each do |plat|
+                unless passed?(plat)
+                  if job.match(/unit-module/)
+                    print_unit_test_configs(job, plat)
+                  elsif job.match(/intn-sys/)
+                    print_accept_job_configs(job, plat)
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    rescue NoMethodError
+      puts "Got an empty list for a module."
+    end
+  end
+
+
   def run
     program :name, 'ci-triage'
     program :version, VERSION
@@ -138,6 +199,7 @@ class Citriage
       c.syntax = 'ci-triage all'
       c.description = 'Lists all modules at the top level.'
       c.option '--verbose', 'Enables verbose output'
+      c.option '--configurations', 'Verbose output with failed configurations'
       c.option '--platform STRING', String, 'Platform(s) to display.'
       c.action do |args, opts|
         if !opts.platform.nil?
@@ -177,6 +239,8 @@ class Citriage
 
               if opts.verbose
                 list_jobs_verbose job_list
+              elsif opts.configurations
+                list_jobs_verbose_with_configurations job_list
               else
                 list_jobs job_list
               end

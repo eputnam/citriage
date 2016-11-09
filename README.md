@@ -26,11 +26,17 @@ To get verbose output that lists all branches and failing jobs individually, run
 ci-triage --verbose
 ```
 
+To take it to the _next_ level and list failing configurations per job, run with the `--configurations` option:
+```shell
+ci-triage --configurations
+```
+
 To specify specific platforms, use the -p option and list platforms as arguments separated by commas:
 ```shell
 ci-triage -p linux,windows,netdev
 ```
-Available Plaforms:
+
+### Available Plaforms:
 - windows
 - linux
 - cross-platform
@@ -41,7 +47,7 @@ Default behavior is to list all platforms.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[eputnam]/citriage.
+Bug reports and pull requests are welcome on GitHub at https://github.com/eputnam/citriage.
 
 
 ## License
