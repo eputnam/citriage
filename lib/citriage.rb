@@ -22,7 +22,11 @@ class Citriage
     _url = api_url url
 
     Curl.get(_url) do |curl|
-      curl.on_failure { |failure| puts "cURL failed for #{failure.url}" }
+      curl.on_missing { |missing| puts "cURL failed with 4xx error for #{missing.url}\nJob no longer exists?".color(:yellow) }
+      curl.on_failure do |failure|
+        puts "cURL failed with 5xx error for #{failure.url}\nAre you connected to the VPN? ".color(:red)
+        exit
+      end
     end
   end
 
@@ -31,7 +35,7 @@ class Citriage
 
     begin
       JSON.parse(response.body_str)
-    rescue JSON::ParserError
+    rescue
       puts "There was a problem parsing the JSON for #{_url}".color(:red)
     end
   end
