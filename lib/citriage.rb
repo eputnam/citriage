@@ -22,7 +22,6 @@ class Citriage
     _url = api_url url
 
     Curl.get(_url) do |curl|
-      curl.on_missing { |missing| puts "cURL failed with 4xx error for #{missing.url}\nJob no longer exists?".color(:yellow) }
       curl.on_failure do |failure|
         puts "cURL failed with 5xx error for #{failure.url}\nAre you connected to the VPN? ".color(:red)
         exit
@@ -85,6 +84,18 @@ class Citriage
     @base_url + _platform + _module_name + _branch_name
   end
 
+  def green_dot
+    "\u25CF ".color(:green)
+  end
+
+  def red_dot
+    "\u25CF ".color(:red)
+  end
+
+  def failed_job_msg job
+    "    FAILURE: #{job}".color(:red)
+  end
+
   def print_unit_test_configs job_url, platform
     print '    |-'.color(:red)
     puts " puppet #{platform["name"].slice(/\d.\d.\d/)}, #{platform["name"].match(/ruby-\d.\d.\d/)}".color(:darkcyan)
@@ -114,12 +125,10 @@ class Citriage
         end
       end
       if mod_status
-        print "\u25CF ".color(:green)
-        puts json[:master]['name'].split(" ")[0]
+        print "#{green_dot}#{json[:master]['name'].split(" ")[0]}\n"
       else
-        print "\u25CF ".color(:red)
-        print json[:master]['name'].split(" ")[0]
-        puts " FAILURE: #{failed_job}".color(:red)
+        print "#{red_dot}#{json[:master]['name'].split(" ")[0]}\n"
+        print "#{failed_job_msg(failed_job)}\n"
       end
     rescue NoMethodError
       puts "Got an empty list for a module."
@@ -141,11 +150,13 @@ class Citriage
         end
 
         if mod_status
-          print "\u25CF #{name.to_s}\n".color(:green)
+          print "#{green_dot}"
+          print "#{name.to_s}\n".color(:green)
         else
-          print "\u25CF #{name.to_s}\n".color(:red)
+          print "#{red_dot}"
+          print "#{name.to_s}\n".color(:red)
           failed_jobs.each do |job|
-            print "    FAILURE: #{job}\n".color(:red)
+            print "#{failed_job_msg(job)}\n"
           end
         end
       end
@@ -169,11 +180,11 @@ class Citriage
         end
 
         if mod_status
-          print "\u25CF #{name.to_s}\n".color(:green)
+          print "#{green_dot}#{name.to_s}\n".color(:green)
         else
-          print "\u25CF #{name.to_s}\n".color(:red)
+          print "#{red_dot}#{name.to_s}\n".color(:red)
           failed_jobs.each do |job|
-            print "    FAILURE: #{job}\n".color(:red)
+            print "#{failed_job_msg(job)}\n"
             unless job.match(/init-merge/) || job.match(/static-module/)
               config_json(job).each do |plat|
                 unless passed?(plat)
@@ -221,24 +232,27 @@ class Citriage
               job_list = {}
 
               master_url = generate_url(platform, mod, "master")
-              stable_url = generate_url(platform, mod, "stable")
-              release_url = generate_url(platform, mod, "release")
 
               master_response = get_response master_url
 
               # We know we'll always get data back for master
               job_list[:master] = get_json master_url, master_response
 
-              # Check for 'stable' and 'release' pipelines
-              # Not all pipelines will have them but most will have one or the other
-              stable_response = get_response stable_url
-              if !stable_response.body_str.include? "Error 404"
-                job_list[:stable] = get_json stable_url, stable_response
-              end
+              if opts.verbose || opts.configurations
+                stable_url = generate_url(platform, mod, "stable")
+                release_url = generate_url(platform, mod, "release")
 
-              release_response = get_response release_url
-              if !release_response.body_str.include? "Error 404"
-                job_list[:release] = get_json release_url, release_response
+                # Check for 'stable' and 'release' pipelines
+                # Not all pipelines will have them but most will have one or the other
+                stable_response = get_response stable_url
+                if !stable_response.body_str.include? "Error 404"
+                  job_list[:stable] = get_json stable_url, stable_response
+                end
+
+                release_response = get_response release_url
+                if !release_response.body_str.include? "Error 404"
+                  job_list[:release] = get_json release_url, release_response
+                end
               end
 
               if opts.verbose
