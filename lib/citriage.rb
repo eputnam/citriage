@@ -97,8 +97,10 @@ class Citriage
   end
 
   def print_unit_test_configs job_url, platform
-    print '    |-'.color(:red)
-    puts " puppet #{platform["name"].slice(/\d.\d.\d/)}, #{platform["name"].match(/ruby-\d.\d.\d/)}".color(:darkcyan)
+    if !platform.nil?
+      print '    |-'.color(:red)
+      puts " puppet #{platform["name"].slice(/\d.\d.\d/)}, #{platform["name"].match(/ruby-\d.\d.\d.*x\d\d/) || platform["name"].match(/ruby-\d.\d.\d/)}".color(:darkcyan)
+    end
   end
 
   def print_accept_job_configs job_url, platform
@@ -188,7 +190,7 @@ class Citriage
             unless job.match(/init-merge/) || job.match(/static-module/)
               config_json(job).each do |plat|
                 unless passed?(plat)
-                  if job.match(/unit-module/)
+                  if job.match(/unit-module/) || job.match(/intn-module/)
                     print_unit_test_configs(job, plat)
                   elsif job.match(/intn-sys/)
                     print_accept_job_configs(job, plat)
