@@ -97,9 +97,13 @@ class Citriage
   end
 
   def print_unit_test_configs job_url, platform
-    if !platform.nil?
+    if !platform["name"].nil?
       print '    |-'.color(:red)
-      puts " puppet #{platform["name"].slice(/\d.\d.\d/)}, #{platform["name"].match(/ruby-\d.\d.\d.*x\d\d/) || platform["name"].match(/ruby-\d.\d.\d/)}".color(:darkcyan)
+      platform_string = String.new
+      platform_string += " puppet #{platform["name"].slice(/\d.\d.\d/)} "
+      platform_string += "#{platform["name"].match(/ruby-\d.\d.\d.*x\d\d/) || platform["name"].match(/ruby-\d.\d.\d/)} "
+      platform_string += "#{platform["name"].match(/unit-win.*/)}"
+      puts platform_string.color(:darkcyan)
     end
   end
 
