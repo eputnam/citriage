@@ -51,6 +51,8 @@ class Citriage
       _platform = "/5.%20cloud"
     when "netdev"
       _platform = "/6.%20netdev"
+    when "future"
+      _platform = "/future%20pe"
     end
     _platform
   end
@@ -77,9 +79,14 @@ class Citriage
   end
 
   def generate_url platform, module_name, branch_name
-    _platform = "#{platform_dir platform}/view"
-    _module_name = "/#{module_name}/view"
-    _branch_name = "/#{module_name}%20-%20#{branch_name}"
+    _platform = "#{platform_dir platform}"
+    _module_name = "/view/#{module_name}"
+    case platform
+    when "future"
+      _branch_name= ""
+    else
+      _branch_name = "/view/#{module_name}%20-%20#{branch_name}"
+    end
 
     @base_url + _platform + _module_name + _branch_name
   end
