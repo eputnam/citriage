@@ -42,6 +42,7 @@ ci-triage -p linux,windows,netdev
 - cross-platform
 - netdev
 - cloud
+- future
 
 Default behavior is to list all platforms.
 
